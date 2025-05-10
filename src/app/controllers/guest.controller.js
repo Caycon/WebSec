@@ -282,10 +282,13 @@ class GuestController {
     );
 
     const filteredCommentAuthor = comments.filter((item) =>
-      item.user_id._id.equals(req.session.userId)
+      item.user_id && item.user_id._id && item.user_id._id.equals(req.session.userId)
     );
     const filteredCommentDiffAuthor = comments.filter(
-      (item) => !item.user_id._id.equals(req.session.userId)
+      (item) => {
+        if (!item.user_id || !item.user_id._id) return true; // Giữ lại nếu không có user
+        return !item.user_id._id.equals(req.session.userId);
+      }
     );
     if (article.type === "none") {
       if (profile === null) {
