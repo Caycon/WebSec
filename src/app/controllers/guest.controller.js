@@ -256,11 +256,12 @@ class GuestController {
         childCategories: childCategoriesObjects,
       });
     }
-    // Article.findById({_id : req.params.id})
-    //     .then(( article ) =>
-    //         res.render('guest/article'),{article : mongooseToObject(article)}
-    //     )
-    //     .catch(next);
+
+    // Validate ObjectId before querying
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(404).render("errors/not_found", { layout: "error" });
+    }
+
     const articleTags = await ArticleTag.find({
       article_id: req.params.id,
     }).populate("tag_id");
@@ -290,6 +291,12 @@ class GuestController {
         return !item.user_id._id.equals(req.session.userId);
       }
     );
+
+    // Add null check for article
+    if (!article) {
+      return res.status(404).render("errors/not_found", { layout: "error" });
+    }
+
     if (article.type === "none") {
       if (profile === null) {
         await Article.findByIdAndUpdate(req.params.id, {
